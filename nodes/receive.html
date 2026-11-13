@@ -1,0 +1,74 @@
+<script type="text/html" data-template-name="dingtalk-receive">
+    <div class="form-row">
+        <label for="node-input-config"><i class="fa fa-plug"></i> 连接</label>
+        <input type="text" id="node-input-config">
+    </div>
+    <div class="form-row">
+        <label for="node-input-name"><i class="fa fa-tag"></i> 名称</label>
+        <input type="text" id="node-input-name" placeholder="收到消息">
+    </div>
+    <div class="form-row">
+        <label>&nbsp;</label>
+        <input type="checkbox" id="node-input-onlyAt" style="display:inline-block;width:auto;vertical-align:top;">
+        <label for="node-input-onlyAt" style="width:auto;">只处理 @ 了机器人的群消息</label>
+    </div>
+    <div class="form-row">
+        <label for="node-input-reply"><i class="fa fa-reply"></i> 自动回复</label>
+        <input type="text" id="node-input-reply" placeholder="留空则不回复">
+    </div>
+    <div class="form-row">
+        <label>&nbsp;</label>
+        <input type="checkbox" id="node-input-recordIds" style="display:inline-block;width:auto;vertical-align:top;">
+        <label for="node-input-recordIds" style="width:auto;">自动记录 ID（群名 ↔ conversationId、昵称 ↔ userid）</label>
+    </div>
+    <div class="form-tips">
+        支持占位符：<code>{{content}}</code>、<code>{{senderNick}}</code>、<code>{{conversationId}}</code>。
+        留空时消息不会自动回复，可用输出的 <code>msg.dingtalk.sessionWebhook</code> 自行回复任意内容。
+        <br>勾选「自动记录 ID」后，打开 <a id="node-receive-idbook" href="#" target="_blank">ID 速查页</a>
+        就能复制群 ID 和 userid，不用翻 debug。
+    </div>
+</script>
+
+<script type="text/html" data-help-name="dingtalk-receive">
+    <p>接收群内 @机器人 或单聊消息。</p>
+    <h3>输出</h3>
+    <ul>
+        <li><code>msg.payload</code> — 消息文本（去掉首尾空白）</li>
+        <li><code>msg.dingtalk.conversationId</code> — 群会话 ID，发卡片到该群时要用</li>
+        <li><code>msg.dingtalk.senderNick</code> / <code>senderStaffId</code> — 发送人</li>
+        <li><code>msg.dingtalk.conversationType</code> — <code>1</code> 单聊、<code>2</code> 群聊</li>
+        <li><code>msg.dingtalk.sessionWebhook</code> — 临时回复地址，2 小时内有效</li>
+        <li><code>msg.dingtalk.raw</code> — 钉钉原始消息体</li>
+    </ul>
+    <h3>典型用法</h3>
+    <p>把 <code>conversationId</code> 直接接到「发送卡片」节点的 <code>msg.conversationId</code>，
+    就能把卡片发回当前群，不需要预先知道群 ID。</p>
+</script>
+
+<script type="text/javascript">
+    RED.nodes.registerType('dingtalk-receive', {
+        category: 'dingtalk',
+        color: '#4B8BF5',
+        defaults: {
+            name: { value: '' },
+            config: { type: 'dingtalk-robot', value: '' },
+            onlyAt: { value: true },
+            reply: { value: '' },
+            recordIds: { value: true }
+        },
+        inputs: 0,
+        outputs: 1,
+        icon: 'font-awesome/fa-comment',
+        label: function () {
+            return this.name || '收到消息';
+        },
+        paletteLabel: '接收消息',
+        oneditprepare: function () {
+            if (this.onlyAt === undefined) this.onlyAt = true;
+            if (this.recordIds === undefined) this.recordIds = true;
+            var root = (RED.settings.httpNodeRoot || '').replace(/\/$/, '');
+            var a = document.getElementById('node-receive-idbook');
+            a.href = window.location.origin + root + '/dingtalk/ids';
+        }
+    });
+</script>

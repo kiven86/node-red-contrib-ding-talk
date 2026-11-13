@@ -1,0 +1,102 @@
+<script type="text/html" data-template-name="dingtalk-id-book">
+    <div class="form-row">
+        <label for="node-input-mode"><i class="fa fa-tasks"></i> 作用</label>
+        <select id="node-input-mode">
+            <option value="record">记录 + 透传（接在「接收消息」后面）</option>
+            <option value="query">只查询（inject 关键词进来）</option>
+        </select>
+    </div>
+    <div class="form-row">
+        <label for="node-input-name"><i class="fa fa-tag"></i> 名称</label>
+        <input type="text" id="node-input-name" placeholder="ID 速查">
+    </div>
+    <div class="form-row">
+        <label><i class="fa fa-external-link"></i> 速查页</label>
+        <span style="display:inline-block;line-height:34px;">
+            <a id="node-idbook-link" href="#" target="_blank" style="word-break:break-all;"></a>
+        </span>
+    </div>
+    <div class="form-tips">
+        把「接收消息」的输出接进来，群里有人 <code>@机器人</code> 就会自动记下
+        <b>群名 ↔ conversationId</b>、<b>昵称 ↔ userid</b>；上表页面有搜索和复制按钮，
+        配「发送文本 / 发送卡片」时直接抄。数据存在 userDir 的
+        <code>dingtalk-ids.json</code>，重启不丢。
+    </div>
+</script>
+
+<script type="text/html" data-help-name="dingtalk-id-book">
+    <p>钉钉 ID 台账：自动攒 conversationId 与 userid，并提供网页速查。</p>
+    <h3>为什么需要</h3>
+    <p>
+        <code>conversationId</code>（形如 <code>cidXXX==</code>）在钉钉任何控制台都查不到，
+        只能从会话事件里取；<code>userid</code> 也不是手机号或昵称。手工翻 debug 日志既慢又容易抄错，
+        这个节点负责把见过的都记住。
+    </p>
+    <h3>用法一：记录（推荐）</h3>
+    <p>「接收消息」→「ID 速查」→ 下游原样透传，不影响原有链路。之后打开速查页即可复制。</p>
+    <h3>用法二：查询</h3>
+    <p>
+        <code>msg.payload</code> 传关键词（如 <code>"运维"</code>），支持空格分词；
+        <code>msg.payload = { action: "clear" }</code> 清空台账。
+    </p>
+    <h3>输出</h3>
+    <p>
+        <code>msg.payload = { conversations: [...], users: [...] }</code>，
+        <code>msg.text</code> 是给人看的纯文本清单。
+    </p>
+    <h3>注意</h3>
+    <ul>
+        <li>只记录实际发生过会话的人/群，没说过话的查不到</li>
+        <li>最多保留 2000 条，超出按最近使用时间淘汰</li>
+        <li>需要 Node-RED 的 httpNode 可用（编辑器能打开就说明可用）</li>
+    </ul>
+</script>
+
+<script type="text/javascript">
+    // 其它节点的群 ID / 接收人输入框靠这个函数从台账补全（它们都有 list="dt-conv-list" / "dt-user-list"）
+    window.dtalkFillIdLists = function () {
+        var root = (RED.settings.httpNodeRoot || '').replace(/\/$/, '');
+        function fill(id, rows) {
+            var dl = document.getElementById(id);
+            if (!dl) return;
+            dl.innerHTML = '';
+            rows.forEach(function (r) {
+                if (!r[0]) return;
+                var o = document.createElement('option');
+                o.value = r[0];
+                if (r[1]) o.label = r[1];
+                dl.appendChild(o);
+            });
+        }
+        fetch(root + '/dingtalk/ids.json', { credentials: 'same-origin' })
+            .then(function (r) { return r.json(); })
+            .then(function (d) {
+                fill('dt-conv-list', (d.conversations || []).map(function (c) { return [c.id, c.title]; }));
+                fill('dt-user-list', (d.users || []).map(function (u) { return [u.id, u.nick]; }));
+            })
+            .catch(function () { /* 拿不到就只是没有补全，不影响编辑 */ });
+    };
+
+    RED.nodes.registerType('dingtalk-id-book', {
+        category: 'dingtalk',
+        color: '#5AA9E6',
+        defaults: {
+            name: { value: '' },
+            mode: { value: 'record' }
+        },
+        inputs: 1,
+        outputs: 1,
+        icon: 'font-awesome/fa-address-book-o',
+        label: function () {
+            return this.name || 'ID 速查';
+        },
+        paletteLabel: 'ID 速查',
+        oneditprepare: function () {
+            var root = (RED.settings.httpNodeRoot || '').replace(/\/$/, '');
+            var url = window.location.origin + root + '/dingtalk/ids';
+            var a = document.getElementById('node-idbook-link');
+            a.href = url;
+            a.textContent = url;
+        }
+    });
+</script>

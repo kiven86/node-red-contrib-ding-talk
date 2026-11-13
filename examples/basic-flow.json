@@ -1,0 +1,203 @@
+[
+    {
+        "id": "a1b2c3d4e5f60001",
+        "type": "tab",
+        "label": "钉钉卡片示例",
+        "disabled": false,
+        "info": "演示：群里 @机器人 → 弹卡片 → 点按钮 → 更新卡片文案"
+    },
+    {
+        "id": "a1b2c3d4e5f60002",
+        "type": "dingtalk-robot",
+        "name": "钉钉连接",
+        "clientId": "",
+        "robotCode": "",
+        "debug": false
+    },
+    {
+        "id": "a1b2c3d4e5f60003",
+        "type": "dingtalk-receive",
+        "z": "a1b2c3d4e5f60001",
+        "name": "收到消息",
+        "config": "a1b2c3d4e5f60002",
+        "onlyAt": true,
+        "reply": "",
+        "x": 180,
+        "y": 100,
+        "wires": [
+            [
+                "a1b2c3d4e5f60005",
+                "a1b2c3d4e5f60009"
+            ]
+        ]
+    },
+    {
+        "id": "a1b2c3d4e5f60005",
+        "type": "function",
+        "z": "a1b2c3d4e5f60001",
+        "name": "组装卡片变量",
+        "func": "// 模板里的变量名必须和卡片模板一致\nmsg.cardParamMap = {\n    title: '统计数据',\n    content: '应 ' + (msg.dingtalk.senderNick || '同事') + ' 的请求生成',\n    status: '待确认',\n    operator: ''\n};\n// conversationId 直接在 msg.conversationId 上，发卡片节点会优先用它\nreturn msg;",
+        "outputs": 1,
+        "x": 410,
+        "y": 100,
+        "wires": [
+            [
+                "a1b2c3d4e5f60004"
+            ]
+        ]
+    },
+    {
+        "id": "a1b2c3d4e5f60004",
+        "type": "dingtalk-card-send",
+        "z": "a1b2c3d4e5f60001",
+        "name": "发卡片",
+        "config": "a1b2c3d4e5f60002",
+        "cardTemplateId": "",
+        "openConversationId": "",
+        "robotCode": "",
+        "title": "统计数据",
+        "outTrackPrefix": "nr",
+        "x": 640,
+        "y": 100,
+        "wires": [
+            []
+        ]
+    },
+    {
+        "id": "a1b2c3d4e5f60006",
+        "type": "dingtalk-card-receive",
+        "z": "a1b2c3d4e5f60001",
+        "name": "点按钮",
+        "config": "a1b2c3d4e5f60002",
+        "autoUpdate": false,
+        "cardParamTemplate": "",
+        "x": 180,
+        "y": 240,
+        "wires": [
+            [
+                "a1b2c3d4e5f60007"
+            ]
+        ]
+    },
+    {
+        "id": "a1b2c3d4e5f60007",
+        "type": "change",
+        "z": "a1b2c3d4e5f60001",
+        "name": "改成已处理",
+        "rules": [
+            {
+                "t": "set",
+                "p": "payload",
+                "pt": "msg",
+                "to": "{\"status\":\"已处理\",\"operator\":msg.dingtalk.userId}",
+                "tot": "jsonata"
+            }
+        ],
+        "action": "",
+        "property": "",
+        "from": "",
+        "to": "",
+        "reg": false,
+        "x": 410,
+        "y": 240,
+        "wires": [
+            [
+                "a1b2c3d4e5f60008"
+            ]
+        ]
+    },
+    {
+        "id": "a1b2c3d4e5f60008",
+        "type": "dingtalk-card-update",
+        "z": "a1b2c3d4e5f60001",
+        "name": "更新卡片",
+        "config": "a1b2c3d4e5f60002",
+        "x": 640,
+        "y": 240,
+        "wires": [
+            []
+        ]
+    },
+    {
+        "id": "a1b2c3d4e5f60009",
+        "type": "function",
+        "z": "a1b2c3d4e5f60001",
+        "name": "转成回复文本",
+        "func": "// msg.conversationId 由「收到消息」节点带下来，直接回复到同一个会话\nmsg.payload = '收到：' + msg.payload;\nreturn msg;",
+        "outputs": 1,
+        "x": 400,
+        "y": 340,
+        "wires": [
+            [
+                "a1b2c3d4e5f6000a"
+            ]
+        ]
+    },
+    {
+        "id": "a1b2c3d4e5f6000a",
+        "type": "dingtalk-send-text",
+        "z": "a1b2c3d4e5f60001",
+        "name": "回复文本",
+        "config": "a1b2c3d4e5f60002",
+        "mode": "text",
+        "target": "auto",
+        "conversationId": "",
+        "userIds": "",
+        "title": "",
+        "atUserIds": "",
+        "atAll": false,
+        "robotCode": "",
+        "x": 620,
+        "y": 340,
+        "wires": [
+            []
+        ]
+    },
+    {
+        "id": "a1b2c3d4e5f6000b",
+        "type": "inject",
+        "z": "a1b2c3d4e5f60001",
+        "name": "发图片（先填群ID）",
+        "props": [
+            {
+                "p": "payload"
+            },
+            {
+                "p": "conversationId",
+                "v": "",
+                "vt": "str"
+            }
+        ],
+        "repeat": "",
+        "crontab": "",
+        "once": false,
+        "onceDelay": 0.1,
+        "topic": "",
+        "payload": "/volume1/www/ding_talk/test/demo.png",
+        "payloadType": "str",
+        "x": 200,
+        "y": 420,
+        "wires": [
+            [
+                "a1b2c3d4e5f6000c"
+            ]
+        ]
+    },
+    {
+        "id": "a1b2c3d4e5f6000c",
+        "type": "dingtalk-send-image",
+        "z": "a1b2c3d4e5f60001",
+        "name": "发送图片",
+        "config": "a1b2c3d4e5f60002",
+        "target": "auto",
+        "conversationId": "",
+        "userIds": "",
+        "urlMode": "auto",
+        "robotCode": "",
+        "x": 450,
+        "y": 420,
+        "wires": [
+            []
+        ]
+    }
+]

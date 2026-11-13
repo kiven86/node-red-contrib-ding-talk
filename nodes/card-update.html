@@ -1,0 +1,58 @@
+<script type="text/html" data-template-name="dingtalk-card-update">
+    <div class="form-row">
+        <label for="node-input-config"><i class="fa fa-plug"></i> 连接</label>
+        <input type="text" id="node-input-config">
+    </div>
+    <div class="form-row">
+        <label for="node-input-name"><i class="fa fa-tag"></i> 名称</label>
+        <input type="text" id="node-input-name" placeholder="更新卡片">
+    </div>
+    <div class="form-row">
+        <label for="node-input-actionVar"><i class="fa fa-bolt"></i> 动作写入变量</label>
+        <input type="text" id="node-input-actionVar" placeholder="留空则要求上游给对象；填了就能直连「接收卡片回调」">
+    </div>
+    <div class="form-row">
+        <label for="node-input-actionLabels"><i class="fa fa-language"></i> 动作文案</label>
+        <input type="text" id="node-input-actionLabels" placeholder="agree=✅ 已通过,reject=❌ 已驳回">
+    </div>
+    <div class="form-tips">
+        从 <code>msg.outTrackId</code> 定位卡片，从 <code>msg.payload</code>（对象或 JSON 字符串）
+        或 <code>msg.cardParamMap</code> 取新的变量值。<br>
+        <b>直连「接收卡片回调」</b>时：回调的 <code>msg.payload</code> 是按钮动作（如 <code>agree</code>）不是对象，
+        只要在上面「动作写入变量」填一个模板里的变量名（如 <code>status</code>），就会自动把动作写进去，
+        不需要中间加 function。<br>
+        <b>建议一次把模板变量传全</b>：钉钉按 key 覆盖，只传一部分时其余字段行为依赖模板定义，容易看起来「丢字段」。
+    </div>
+</script>
+
+<script type="text/html" data-help-name="dingtalk-card-update">
+    <p>原地刷新一张已经发出去的卡片，群里不会多出新消息。</p>
+    <h3>输入</h3>
+    <ul>
+        <li><code>msg.outTrackId</code> — 卡片实例 ID，接「接收卡片回调」的输出即可</li>
+        <li><code>msg.payload</code> / <code>msg.cardParamMap</code> — 新的变量值</li>
+    </ul>
+    <h3>常见用途</h3>
+    <p>点按钮 → 卡片立刻变成「处理中」→ 下游干活 → 干完再更新成「已完成」。
+    中间那条「处理中」很有必要：用户点了没反馈会反复点。</p>
+</script>
+
+<script type="text/javascript">
+    RED.nodes.registerType('dingtalk-card-update', {
+        category: 'dingtalk',
+        color: '#4B8BF5',
+        defaults: {
+            name: { value: '' },
+            config: { type: 'dingtalk-robot', value: '' },
+            actionVar: { value: '' },
+            actionLabels: { value: '' }
+        },
+        inputs: 1,
+        outputs: 1,
+        icon: 'font-awesome/fa-refresh',
+        label: function () {
+            return this.name || '更新卡片';
+        },
+        paletteLabel: '更新卡片'
+    });
+</script>

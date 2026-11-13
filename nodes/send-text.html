@@ -1,0 +1,108 @@
+<script type="text/html" data-template-name="dingtalk-send-text">
+    <div class="form-row">
+        <label for="node-input-config"><i class="fa fa-plug"></i> 连接</label>
+        <input type="text" id="node-input-config">
+    </div>
+    <div class="form-row">
+        <label for="node-input-name"><i class="fa fa-tag"></i> 名称</label>
+        <input type="text" id="node-input-name" placeholder="发送文本">
+    </div>
+    <div class="form-row">
+        <label for="node-input-mode"><i class="fa fa-font"></i> 格式</label>
+        <select id="node-input-mode">
+            <option value="text">纯文本</option>
+            <option value="markdown">Markdown</option>
+        </select>
+    </div>
+    <div class="form-row">
+        <label for="node-input-target"><i class="fa fa-crosshairs"></i> 发送到</label>
+        <select id="node-input-target">
+            <option value="auto">自动（有群 ID 发群，否则单聊）</option>
+            <option value="group">群聊</option>
+            <option value="single">单聊</option>
+        </select>
+    </div>
+    <div class="form-row">
+        <label for="node-input-conversationId"><i class="fa fa-users"></i> 群 ID</label>
+        <input type="text" id="node-input-conversationId" list="dt-conv-list" placeholder="cidXXX==（可留空用 msg.conversationId）">
+    </div>
+    <div class="form-row">
+        <label for="node-input-userIds"><i class="fa fa-user"></i> 接收人</label>
+        <input type="text" id="node-input-userIds" list="dt-user-list" placeholder="userid，多个用逗号分隔（单聊用）">
+    </div>
+    <datalist id="dt-conv-list"></datalist>
+    <datalist id="dt-user-list"></datalist>
+    <div class="form-row">
+        <label for="node-input-title"><i class="fa fa-commenting-o"></i> 摘要</label>
+        <input type="text" id="node-input-title" placeholder="Markdown 在会话列表里的标题，留空自动取首行">
+    </div>
+    <div class="form-row">
+        <label for="node-input-atUserIds"><i class="fa fa-at"></i> 提醒谁</label>
+        <input type="text" id="node-input-atUserIds" placeholder="userid，多个用逗号分隔">
+    </div>
+    <div class="form-row">
+        <label for="node-input-atAll" style="width:auto;margin-right:10px;">@ 所有人</label>
+        <input type="checkbox" id="node-input-atAll" style="display:inline-block;width:auto;vertical-align:top;">
+    </div>
+    <div class="form-row">
+        <label for="node-input-robotCode"><i class="fa fa-robot"></i> Robot Code</label>
+        <input type="text" id="node-input-robotCode" placeholder="留空则用连接配置里的">
+    </div>
+    <div class="form-tips">
+        内容取自 <code>msg.payload</code>。<code>msg.conversationId</code> 会覆盖节点里的群 ID，
+        接「接收消息」节点的输出即可回复到当前会话。
+        <br>群 ID / 接收人输入框会从 <a id="node-send-text-idbook" href="#" target="_blank">ID 速查台账</a>
+        自动补全（见过一次的群和人）。
+    </div>
+</script>
+
+<script type="text/html" data-help-name="dingtalk-send-text">
+    <p>用机器人身份发送文本或 Markdown 消息，可发群也可发单聊。</p>
+    <h3>输入</h3>
+    <ul>
+        <li><code>msg.payload</code> — 文本内容</li>
+        <li><code>msg.conversationId</code> — 群 ID，接「接收消息」的输出最省事</li>
+        <li><code>msg.userIds</code> — 单聊接收人 userid 数组</li>
+        <li><code>msg.atUserIds</code> / <code>msg.atAll</code> — @ 指定人 / @所有人</li>
+    </ul>
+    <h3>输出</h3>
+    <p><code>msg.dingtalk = { ok, target, msgKey, result }</code>，原始 msg 会继续往下游传。</p>
+    <h3>注意</h3>
+    <ul>
+        <li>这是 OpenAPI 通道，额度与 webhook 那套「钉钉通知」节点无关</li>
+        <li>群发要求机器人已在群里，否则报 <code>robot not in group</code></li>
+        <li>Markdown 的标题只影响会话列表摘要，不影响正文</li>
+    </ul>
+</script>
+
+<script type="text/javascript">
+    RED.nodes.registerType('dingtalk-send-text', {
+        category: 'dingtalk',
+        color: '#5AA9E6',
+        defaults: {
+            name: { value: '' },
+            config: { type: 'dingtalk-robot', value: '' },
+            mode: { value: 'text' },
+            target: { value: 'auto' },
+            conversationId: { value: '' },
+            userIds: { value: '' },
+            title: { value: '' },
+            atUserIds: { value: '' },
+            atAll: { value: false },
+            robotCode: { value: '' }
+        },
+        inputs: 1,
+        outputs: 1,
+        icon: 'font-awesome/fa-comment',
+        label: function () {
+            return this.name || '发送文本';
+        },
+        paletteLabel: '发送文本',
+        oneditprepare: function () {
+            var root = (RED.settings.httpNodeRoot || '').replace(/\/$/, '');
+            var a = document.getElementById('node-send-text-idbook');
+            if (a) a.href = window.location.origin + root + '/dingtalk/ids';
+            if (window.dtalkFillIdLists) window.dtalkFillIdLists();
+        }
+    });
+</script>

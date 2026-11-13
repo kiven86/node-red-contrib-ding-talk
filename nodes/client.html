@@ -1,0 +1,95 @@
+<script type="text/html" data-template-name="dingtalk-robot">
+    <div class="form-row">
+        <label for="node-config-input-name"><i class="fa fa-tag"></i> 名称</label>
+        <input type="text" id="node-config-input-name" placeholder="钉钉连接">
+    </div>
+    <div class="form-row">
+        <label for="node-config-input-clientId"><i class="fa fa-key"></i> Client ID</label>
+        <input type="text" id="node-config-input-clientId" placeholder="AppKey，形如 dingxxxxxxxx">
+    </div>
+    <div class="form-row">
+        <label for="node-config-input-clientSecret"><i class="fa fa-lock"></i> Client Secret</label>
+        <input type="password" id="node-config-input-clientSecret">
+    </div>
+    <div class="form-row">
+        <label for="node-config-input-robotCode"><i class="fa fa-robot"></i> Robot Code</label>
+        <input type="text" id="node-config-input-robotCode" placeholder="发卡片到群时必填">
+    </div>
+    <div class="form-row node-input-debug-container">
+        <label>&nbsp;</label>
+        <input type="checkbox" id="node-config-input-debug" style="display:inline-block;width:auto;vertical-align:top;">
+        <label for="node-config-input-debug" style="width:auto;">输出 Stream 调试日志（排查连不上时开）</label>
+    </div>
+    <div class="form-row">
+        <label></label>
+        <button type="button" id="node-config-btn-verify" class="red-ui-button">
+            <i class="fa fa-plug"></i> 测试凭证
+        </button>
+        <span id="node-config-verify-result" style="margin-left:8px;font-size:12px;"></span>
+    </div>
+    <div class="form-tips">
+        一个 Client ID 只允许一条 Stream 连接。多个业务节点共用本配置即可，
+        不要给同一套凭证建两个配置节点，否则回调会被随机分摊。
+    </div>
+</script>
+
+<script type="text/html" data-help-name="dingtalk-robot">
+    <p>钉钉应用的凭证与 Stream 长连接配置。</p>
+    <h3>获取凭证</h3>
+    <ol>
+        <li>钉钉开放平台 → 应用开发 → 企业内部应用</li>
+        <li>「凭证与基础信息」里拿 Client ID / Client Secret</li>
+        <li>「机器人」页把消息接收模式设为 <b>Stream 模式</b></li>
+        <li>「权限管理」勾选机器人接收消息、卡片相关权限</li>
+        <li>发布上线，并把机器人拉进目标群</li>
+    </ol>
+    <h3>为什么只能有一个配置节点</h3>
+    <p>钉钉对同一个 Client ID 的回调是<b>抢占消费</b>：多条连接同时存在时，
+    同一条回调只会投给其中一条，而且不保证固定。所以两台机器/两个配置节点
+    用同一套凭证时，会出现「一半点击没反应」。</p>
+    <h3>连接数</h3>
+    <p>本节点内部只用一条 WebSocket，所有订阅的 topic（机器人消息、卡片回调）
+    共用这条连接。断线重连采用 1s→2s→4s…上限 60s 的指数退避。</p>
+</script>
+
+<script type="text/javascript">
+    RED.nodes.registerType('dingtalk-robot', {
+        category: 'config',
+        defaults: {
+            name: { value: '' },
+            clientId: { value: '' },
+            robotCode: { value: '' },
+            debug: { value: false }
+        },
+        credentials: {
+            clientSecret: { type: 'password' }
+        },
+        label: function () {
+            return this.name || this.clientId || '钉钉连接';
+        },
+        oneditprepare: function () {
+            var node = this;
+            $('#node-config-btn-verify').on('click', function () {
+                var $btn = $(this);
+                var $out = $('#node-config-verify-result');
+                if (!node.id) {
+                    $out.text('请先部署再测试').css('color', '#c00');
+                    return;
+                }
+                $btn.prop('disabled', true);
+                $out.text('测试中…').css('color', '#888');
+                $.ajax({
+                    url: 'dingtalk-robot/' + node.id + '/verify',
+                    type: 'POST'
+                }).done(function (res) {
+                    $out.text('凭证有效，token ' + res.tokenTail).css('color', '#080');
+                }).fail(function (xhr) {
+                    var msg = (xhr.responseJSON && xhr.responseJSON.error) || xhr.statusText;
+                    $out.text('失败：' + msg).css('color', '#c00');
+                }).always(function () {
+                    $btn.prop('disabled', false);
+                });
+            });
+        }
+    });
+</script>

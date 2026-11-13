@@ -1,0 +1,79 @@
+<script type="text/html" data-template-name="dingtalk-card-send">
+    <div class="form-row">
+        <label for="node-input-config"><i class="fa fa-plug"></i> 连接</label>
+        <input type="text" id="node-input-config">
+    </div>
+    <div class="form-row">
+        <label for="node-input-name"><i class="fa fa-tag"></i> 名称</label>
+        <input type="text" id="node-input-name" placeholder="发送卡片">
+    </div>
+    <div class="form-row">
+        <label for="node-input-cardTemplateId"><i class="fa fa-id-card-o"></i> 模板 ID</label>
+        <input type="text" id="node-input-cardTemplateId" placeholder="xxx.schema（可留空用 msg.cardTemplateId）">
+    </div>
+    <div class="form-row">
+        <label for="node-input-openConversationId"><i class="fa fa-users"></i> 群 ID</label>
+        <input type="text" id="node-input-openConversationId" list="dt-conv-list" placeholder="cidXXX==（可留空用 msg.conversationId）">
+    </div>
+    <datalist id="dt-conv-list"></datalist>
+    <div class="form-row">
+        <label for="node-input-robotCode"><i class="fa fa-robot"></i> Robot Code</label>
+        <input type="text" id="node-input-robotCode" placeholder="留空则用连接配置里的">
+    </div>
+    <div class="form-row">
+        <label for="node-input-title"><i class="fa fa-commenting-o"></i> 摘要</label>
+        <input type="text" id="node-input-title" placeholder="会话列表里显示的文案">
+    </div>
+    <div class="form-row">
+        <label for="node-input-outTrackPrefix"><i class="fa fa-hashtag"></i> ID 前缀</label>
+        <input type="text" id="node-input-outTrackPrefix" placeholder="nr">
+    </div>
+    <div class="form-tips">
+        卡片变量从 <code>msg.payload</code>（对象或 JSON 字符串）或 <code>msg.cardParamMap</code> 取。
+        每次发送都会生成新的 <code>outTrackId</code>，因为钉钉对同一个 outTrackId 是幂等的，重复发不会刷新内容。
+    </div>
+</script>
+
+<script type="text/html" data-help-name="dingtalk-card-send">
+    <p>把互动卡片投递到群，并可通过「接收卡片回调」节点收回按钮点击。</p>
+    <h3>输入</h3>
+    <ul>
+        <li><code>msg.payload</code> 或 <code>msg.cardParamMap</code> — 卡片变量，key 与模板一致</li>
+        <li><code>msg.conversationId</code> — 目标群，接「接收消息」节点的输出最省事</li>
+        <li><code>msg.outTrackId</code> — 可选，自己指定实例 ID</li>
+    </ul>
+    <h3>输出</h3>
+    <p><code>msg.outTrackId</code> 与 <code>msg.dingtalk.result</code>。</p>
+    <h3>注意</h3>
+    <ul>
+        <li>同一张卡片发到多个群时，<b>每个群必须用不同的 outTrackId</b></li>
+        <li>群里的卡片所有成员都看得见、都能点，平台不校验点击人</li>
+        <li>模板 ID 跟着应用走，换应用要新建模板</li>
+    </ul>
+</script>
+
+<script type="text/javascript">
+    RED.nodes.registerType('dingtalk-card-send', {
+        category: 'dingtalk',
+        color: '#4B8BF5',
+        defaults: {
+            name: { value: '' },
+            config: { type: 'dingtalk-robot', value: '' },
+            cardTemplateId: { value: '' },
+            openConversationId: { value: '' },
+            robotCode: { value: '' },
+            title: { value: '' },
+            outTrackPrefix: { value: 'nr' }
+        },
+        inputs: 1,
+        outputs: 1,
+        icon: 'font-awesome/fa-credit-card',
+        label: function () {
+            return this.name || '发送卡片';
+        },
+        paletteLabel: '发送卡片',
+        oneditprepare: function () {
+            if (window.dtalkFillIdLists) window.dtalkFillIdLists();
+        }
+    });
+</script>

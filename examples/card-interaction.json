@@ -1,0 +1,122 @@
+[
+  {
+    "id": "f1c0de0000000001",
+    "type": "tab",
+    "label": "钉钉卡片交互（点按钮 → 回显）",
+    "disabled": false,
+    "info": "点卡片按钮后：接收回调 → 按 action 组装变量 → 原地刷新卡片。\n\n前置条件（模板侧，缺一不可）：\n1. 卡片模板里的按钮，点击事件选「回传请求参数」，填 actionId 或 params（如 action=agree）\n2. 卡片模板已发布，节点里的模板 ID 是 xxx.schema\n3. 投递时 callbackType 必须是 STREAM（本包已内置）\n\nfunction 节点里的变量名要改成你模板里真实存在的变量名。"
+  },
+  {
+    "id": "f1c0de0000000002",
+    "type": "comment",
+    "z": "f1c0de0000000001",
+    "name": "前置：卡片模板的按钮要配「回传请求参数」，否则点了不会有回调",
+    "info": "",
+    "x": 260,
+    "y": 60,
+    "wires": []
+  },
+  {
+    "id": "f1c0de0000000003",
+    "type": "dingtalk-card-receive",
+    "z": "f1c0de0000000001",
+    "name": "接收卡片回调",
+    "config": "4bf526beb781b162",
+    "autoUpdate": false,
+    "cardParamTemplate": "",
+    "x": 240,
+    "y": 160,
+    "wires": [
+      [
+        "f1c0de0000000004",
+        "f1c0de0000000006"
+      ]
+    ]
+  },
+  {
+    "id": "f1c0de0000000004",
+    "type": "function",
+    "z": "f1c0de0000000001",
+    "name": "按 action 组装回显",
+    "func": "// 卡片按钮回调 → 组装要回写的卡片变量\n// msg.dingtalk.params 里是模板按钮配置的参数，例如 { action: 'agree' }\nconst d = msg.dingtalk || {};\nconst params = d.params || {};\nconst action = String(params.action || d.actionParam || d.actionId || '').trim();\n\nconst LABEL = {\n  agree: '✅ 已通过',\n  reject: '❌ 已驳回',\n  done: '已处理',\n};\n\n// ⚠️ 下面这几个变量名必须和卡片模板里的变量名一致，按你的模板改\nmsg.payload = {\n  status: LABEL[action] || (action ? '已处理：' + action : '已处理'),\n  result: '操作人 ' + (d.userId || '') + ' · ' + new Date().toLocaleString('zh-CN', { hour12: false }),\n};\n\nmsg.action = action;\nreturn msg;",
+    "outputs": 1,
+    "timeout": 0,
+    "noerr": 0,
+    "initialize": "",
+    "finalize": "",
+    "libs": [],
+    "x": 470,
+    "y": 160,
+    "wires": [
+      [
+        "f1c0de0000000005",
+        "f1c0de0000000007"
+      ]
+    ]
+  },
+  {
+    "id": "f1c0de0000000005",
+    "type": "dingtalk-card-update",
+    "z": "f1c0de0000000001",
+    "name": "原地刷新卡片",
+    "config": "4bf526beb781b162",
+    "x": 690,
+    "y": 140,
+    "wires": [
+      [
+        "f1c0de0000000008"
+      ]
+    ]
+  },
+  {
+    "id": "f1c0de0000000006",
+    "type": "debug",
+    "z": "f1c0de0000000001",
+    "name": "原始回调",
+    "active": true,
+    "tosidebar": true,
+    "console": false,
+    "tostatus": false,
+    "complete": "dingtalk",
+    "targetType": "msg",
+    "statusVal": "",
+    "statusType": "auto",
+    "x": 460,
+    "y": 240,
+    "wires": []
+  },
+  {
+    "id": "f1c0de0000000007",
+    "type": "debug",
+    "z": "f1c0de0000000001",
+    "name": "要回写的变量",
+    "active": true,
+    "tosidebar": true,
+    "console": false,
+    "tostatus": false,
+    "complete": "payload",
+    "targetType": "msg",
+    "statusVal": "",
+    "statusType": "auto",
+    "x": 700,
+    "y": 220,
+    "wires": []
+  },
+  {
+    "id": "f1c0de0000000008",
+    "type": "debug",
+    "z": "f1c0de0000000001",
+    "name": "更新结果",
+    "active": true,
+    "tosidebar": true,
+    "console": false,
+    "tostatus": false,
+    "complete": "dingtalk.updateResult",
+    "targetType": "msg",
+    "statusVal": "",
+    "statusType": "auto",
+    "x": 900,
+    "y": 140,
+    "wires": []
+  }
+]

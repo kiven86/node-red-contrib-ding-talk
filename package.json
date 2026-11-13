@@ -1,0 +1,53 @@
+{
+  "name": "node-red-contrib-ding-talk",
+  "version": "2.1.1",
+  "description": "钉钉机器人：Stream 长连接收发消息、互动卡片、文本/图片发送、群 ID 与 userid 速查（无需公网 IP）",
+  "keywords": [
+    "node-red",
+    "node-red-contrib",
+    "ding-talk",
+    "dingtalk",
+    "dingtalk-stream",
+    "card",
+    "interactive-card"
+  ],
+  "author": "kiven86",
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/kiven86/node-red-contrib-ding-talk.git"
+  },
+  "bugs": {
+    "url": "https://github.com/kiven86/node-red-contrib-ding-talk/issues"
+  },
+  "homepage": "https://github.com/kiven86/node-red-contrib-ding-talk#readme",
+  "node-red": {
+    "version": ">=3.0.0",
+    "nodes": {
+      "dingtalk-robot": "nodes/client.js",
+      "dingtalk-receive": "nodes/receive.js",
+      "dingtalk-card-receive": "nodes/card-receive.js",
+      "dingtalk-card-send": "nodes/card-send.js",
+      "dingtalk-card-update": "nodes/card-update.js",
+      "dingtalk-send-text": "nodes/send-text.js",
+      "dingtalk-send-image": "nodes/send-image.js",
+      "dingtalk-id-book": "nodes/id-book.js",
+      "dingTalk-send": "nodes/send.js"
+    }
+  },
+  "engines": {
+    "node": ">=18.0.0"
+  },
+  "scripts": {
+    "test": "node test/load-check.js && node test/smoke.js"
+  },
+  "dependencies": {
+    "ws": "^8.23.0"
+  },
+  "files": [
+    "lib/",
+    "nodes/",
+    "examples/",
+    "README.md"
+  ]
+}
