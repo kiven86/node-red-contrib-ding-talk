@@ -1,16 +1,12 @@
 'use strict';
 
 /**
- * 读取测试用的环境变量。
+ * 读取联调脚本用的环境变量。
  *
- * 默认读仓库根目录的 .env（已在 .gitignore 里，不会进版本库），
- * 也可以用 DT_ENV 指向别处。文件不存在时返回空对象，不抛错。
+ * 默认读仓库根目录的 .env，可用 DT_ENV 指向别处。
+ * 文件不存在时返回空对象，不抛错。
  *
- * 约定用到的键：
- *   DT_CLIENT_ID / DT_CLIENT_SECRET   应用凭证
- *   DT_ROBOT_CODE                     机器人编码
- *   CARD_TEMPLATE_ID                  卡片模板 ID
- *   TEST_CONVERSATION_ID              测试群 ID
+ * 用到的键见仓库根目录 .env.example。
  */
 
 const fs = require('node:fs');

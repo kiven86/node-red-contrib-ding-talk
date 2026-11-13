@@ -35,7 +35,7 @@ function makeNode(node, config) {
   node.warn = (...a) => console.log('  [warn]', ...a);
   node.error = (...a) => console.log('  [error]', ...a);
   node.debug = (...a) => {
-    if (process.env.DEBUG) console.log('  [debug]', ...a);
+    if (process.env.DEBUG === '1') console.log('  [debug]', ...a);
   };
   node.send = (out) => {
     outputs.push(out);
