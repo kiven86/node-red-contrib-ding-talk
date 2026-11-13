@@ -4,12 +4,12 @@
  * 回调监听器：连上新 AppKey 的 Stream，把收到的每条回调解出来打印。
  * 用于「现在去群里 @ 一下 / 回复机器人私聊」这种人工配合的验证。
  *
- * 用法：node test/watch-callback.js /tmp/dt-cred.json [秒数]
+ * 用法：node test/probes/watch-callback.js 凭证文件 [秒数]
  */
 
 const fs = require('node:fs');
-const { DWClient } = require('../lib/client');
-const { TOPIC } = require('../lib/constants');
+const { DWClient } = require('../../lib/client');
+const { TOPIC } = require('../../lib/constants');
 
 const cred = JSON.parse(fs.readFileSync(process.argv[2], 'utf8'));
 const seconds = Number(process.argv[3] || 600);

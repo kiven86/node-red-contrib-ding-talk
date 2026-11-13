@@ -4,11 +4,20 @@
  * 官方 SDK 对照测试：用同一套新凭证，看官方实现能否收到 REGISTERED。
  * 目的是区分「我们自己客户端的问题」与「钉钉侧应用配置的问题」。
  *
- * 用法：node test/official-check.js /tmp/dt-cred.json
+ * 用法：node test/probes/official-check.js 凭证文件
  */
 
 const fs = require('node:fs');
-const { DWClient, TOPIC_ROBOT, TOPIC_CARD } = require('/volume1/www/ding/node_modules/dingtalk-stream/dist/index.cjs');
+
+let DWClient;
+let TOPIC_ROBOT;
+let TOPIC_CARD;
+try {
+  ({ DWClient, TOPIC_ROBOT, TOPIC_CARD } = require('dingtalk-stream'));
+} catch {
+  console.error('需要官方 SDK 做对照：npm install --no-save dingtalk-stream');
+  process.exit(2);
+}
 
 const cred = JSON.parse(fs.readFileSync(process.argv[2], 'utf8'));
 

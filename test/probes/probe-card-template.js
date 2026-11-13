@@ -3,7 +3,8 @@
 /**
  * 探查卡片模板：确认群里那张卡片的按钮到底配没配回调参数。
  *
- * 用法：node test/probe-card-template.js [模板ID]
+ * 用法：node test/probes/probe-card-template.js [模板ID]
+ *   模板 ID 也可以放在环境变量 CARD_TEMPLATE_ID 里，或用 .env。
  * 凭证按 test/cred-check.js 的约定读取（tmp/dt-cred.json 或环境变量）。
  */
 
@@ -12,9 +13,14 @@ const os = require('node:os');
 const path = require('node:path');
 const https = require('node:https');
 
-const openapi = require('../lib/openapi');
+const openapi = require('../../lib/openapi');
 
-const TEMPLATE = process.argv[2] || 'df165631-b57c-4379-91b6-a121bbb14696.schema';
+const TEMPLATE =
+  process.argv[2] || process.env.CARD_TEMPLATE_ID || require('../load-env')().CARD_TEMPLATE_ID || '';
+if (!TEMPLATE) {
+  console.error('缺少模板 ID：node test/probes/probe-card-template.js <模板ID>，或设置 CARD_TEMPLATE_ID');
+  process.exit(2);
+}
 
 function readCred() {
   if (process.env.DT_CLIENT_ID && process.env.DT_CLIENT_SECRET) {

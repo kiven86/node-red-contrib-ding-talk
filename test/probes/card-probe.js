@@ -4,24 +4,21 @@
  * 卡片投递探针：用新应用的 robotCode + 生产已验证的模板/群，试发一张测试卡片。
  * 目的是验证「卡片接口 + 机器人在群里的成员关系」这两关。
  *
- * 群与模板从 /volume1/www/ding/.env 读，不打印原始值。
+ * 群与模板从 .env 读（见 test/load-env.js），不打印原始值。
  *
- * 用法：node test/card-probe.js /tmp/dt-cred.json
+ * 用法：node test/probes/card-probe.js [凭证文件]
+ *   凭证文件省略时读环境变量 DT_CLIENT_ID / DT_CLIENT_SECRET
  */
 
 const fs = require('node:fs');
 
-const cred = JSON.parse(fs.readFileSync(process.argv[2], 'utf8'));
-const ENV = '/volume1/www/ding/.env';
-const API = 'https://api.dingtalk.com';
+const readEnv = require('../load-env');
 
-const env = {};
-for (const line of fs.readFileSync(ENV, 'utf8').split('\n')) {
-  const s = line.trim();
-  if (!s || s.startsWith('#') || !s.includes('=')) continue;
-  const i = s.indexOf('=');
-  env[s.slice(0, i)] = s.slice(i + 1);
-}
+const env = readEnv();
+const cred = process.argv[2]
+  ? JSON.parse(fs.readFileSync(process.argv[2], 'utf8'))
+  : { clientId: env.DT_CLIENT_ID, clientSecret: env.DT_CLIENT_SECRET };
+const API = 'https://api.dingtalk.com';
 
 const templateId = env.CARD_TEMPLATE_ID;
 const conversationId = env.OPEN_CONVERSATION_ID;

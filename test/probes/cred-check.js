@@ -3,7 +3,7 @@
 /**
  * 凭证连通性自检（只读，不发消息、不改任何状态）。
  *
- * 用法：node test/cred-check.js /tmp/dt-cred.json
+ * 用法：node test/probes/cred-check.js 凭证文件
  *   JSON: { "clientId": "...", "clientSecret": "...", "robotCode": "..." }
  *
  * 依次验证四件事：
@@ -15,12 +15,12 @@
 
 const fs = require('node:fs');
 const path = require('node:path');
-const { DWClient } = require('../lib/client');
-const { TOPIC, API_BASE } = require('../lib/constants');
+const { DWClient } = require('../../lib/client');
+const { TOPIC, API_BASE } = require('../../lib/constants');
 
 const credPath = process.argv[2];
 if (!credPath) {
-  console.error('用法: node test/cred-check.js <凭证 json 路径>');
+  console.error('用法: node test/probes/cred-check.js <凭证 json 路径>');
   process.exit(2);
 }
 const cred = JSON.parse(fs.readFileSync(path.resolve(credPath), 'utf8'));

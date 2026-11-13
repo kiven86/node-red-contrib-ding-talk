@@ -6,26 +6,20 @@
  *
  * 会往群里投一张新测试卡片，然后等按钮点击 / 私聊回复。
  *
- * 用法：node test/e2e-harness.js /tmp/dt-cred.json [秒数]
+ * 用法：node test/probes/e2e-harness.js 凭证文件 [秒数]
  */
 
 const fs = require('node:fs');
 const EventEmitter = require('node:events');
-const { DWClient } = require('../lib/client');
-const { TOPIC } = require('../lib/constants');
-const openapi = require('../lib/openapi');
+const { DWClient } = require('../../lib/client');
+const { TOPIC } = require('../../lib/constants');
+const openapi = require('../../lib/openapi');
 
 const cred = JSON.parse(fs.readFileSync(process.argv[2], 'utf8'));
 const seconds = Number(process.argv[3] || 600);
 
-/* ---------------- 从生产 env 取模板与群 ---------------- */
-const env = {};
-for (const line of fs.readFileSync('/volume1/www/ding/.env', 'utf8').split('\n')) {
-  const s = line.trim();
-  if (!s || s.startsWith('#') || !s.includes('=')) continue;
-  const i = s.indexOf('=');
-  env[s.slice(0, i)] = s.slice(i + 1);
-}
+/* ---------------- 从 .env 取模板与群 ---------------- */
+const env = require('../load-env')();
 
 /* ---------------- Node-RED 运行时桩 ---------------- */
 const types = {};
@@ -91,8 +85,8 @@ const RED = {
   },
 };
 
-require('../nodes/card-receive')(RED);
-require('../nodes/receive')(RED);
+require('../../nodes/card-receive')(RED);
+require('../../nodes/receive')(RED);
 
 /* ---------------- 真实连接 ---------------- */
 const t0 = Date.now();

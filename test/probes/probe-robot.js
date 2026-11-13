@@ -6,7 +6,7 @@
  *
  * 不会真的发出任何卡片（参数是假的，接口必然报错）。
  *
- * 用法：node test/probe-robot.js /tmp/dt-cred.json
+ * 用法：node test/probes/probe-robot.js 凭证文件
  */
 
 const fs = require('node:fs');

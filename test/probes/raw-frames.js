@@ -4,7 +4,7 @@
  * 原始帧抓包：直接连 Stream 网关，把收到的每一个帧原样打印。
  * 用来判断「服务端根本没有下发」还是「我们解析漏了」。
  *
- * 用法：node test/raw-frames.js /tmp/dt-cred.json [秒数]
+ * 用法：node test/probes/raw-frames.js 凭证文件 [秒数]
  */
 
 const fs = require('node:fs');

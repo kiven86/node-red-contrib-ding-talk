@@ -173,7 +173,7 @@
         "once": false,
         "onceDelay": 0.1,
         "topic": "",
-        "payload": "/volume1/www/ding_talk/test/demo.png",
+        "payload": "/data/demo.png",
         "payloadType": "str",
         "x": 200,
         "y": 420,

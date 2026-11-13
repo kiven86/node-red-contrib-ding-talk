@@ -8,7 +8,7 @@
  * 所以本地文件必须先走 /media/upload 换 mediaId，不能直接塞路径。
  *
  * 输入（msg.payload 五选一）：
- *   1. 本地绝对路径   /volume1/www/chart.png
+ *   1. 本地绝对路径   /data/chart.png
  *   2. http(s) URL    公网直传；内网地址自动下载后上传
  *   3. data URI       data:image/png;base64,xxxx
  *   4. 纯 base64 字符串

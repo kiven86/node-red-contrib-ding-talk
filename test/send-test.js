@@ -90,7 +90,7 @@ function t(name, fn) {
 
   console.log('\n[2] 内网 URL 判定');
   await t('私网地址识别为内网', () => {
-    assert.equal(openapi.isPrivateUrl('http://192.168.60.88/a.png'), true);
+    assert.equal(openapi.isPrivateUrl('http://192.168.1.10/a.png'), true);
     assert.equal(openapi.isPrivateUrl('http://10.0.0.5/a.png'), true);
     assert.equal(openapi.isPrivateUrl('http://172.16.3.2/a.png'), true);
     assert.equal(openapi.isPrivateUrl('http://localhost:1880/a.png'), true);
@@ -254,7 +254,7 @@ function t(name, fn) {
   await t('download 拿到的不是图片时拒绝', async () => {
     const realFetch = globalThis.fetch;
     globalThis.fetch = async () => new Response('<html>请登录</html>', { status: 200 });
-    await assert.rejects(download('http://192.168.60.1/a.png'), /不是图片/);
+    await assert.rejects(download('http://192.168.1.1/a.png'), /不是图片/);
     globalThis.fetch = realFetch;
   });
 

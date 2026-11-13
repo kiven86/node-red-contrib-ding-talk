@@ -32,27 +32,24 @@ v2.0.0 相对 v1.0.4 是重写：v1 只能通过 webhook 发文本、通过 Stre
 
 ## 安装
 
-代码放哪儿都行，Node-RED 通过 `node_modules` 找到它。以本机为例：
+**从 npm 安装（推荐）**——在「节点管理 → 安装」里搜 `ding-talk`，或者：
 
 ```bash
-# 代码在这
-ls /volume1/www/ding_talk
-
-# 让 Node-RED 认识它（Docker 部署时宿主机路径 = 容器内路径）
-ln -s /volume1/www/ding_talk /volume1/docker/node-red/data/node_modules/node-red-contrib-ding-talk
-
-# 重启容器
-/usr/local/bin/docker restart node-red
+cd ~/.node-red
+npm install node-red-contrib-ding-talk
 ```
 
-或者在 Node-RED 的「节点管理 → 安装」里填本地路径：
+**从源码安装**（改了代码、想马上生效时）：
 
 ```bash
-cd /volume1/docker/node-red/data
-npm install /volume1/www/ding_talk
+cd ~/.node-red
+npm install /path/to/node-red-contrib-ding-talk
 ```
 
-> 依赖只有 `ws`，且 Node-RED 官方镜像已自带。Node 版本需 ≥ 18（用到原生 `fetch`）。
+Docker 部署时这两条命令要在容器内执行，`~/.node-red` 对应镜像里的 `/data`；
+装完重启 Node-RED。
+
+> 依赖只有 `ws`，Node-RED 官方镜像已自带。Node 版本需 ≥ 18（用到原生 `fetch`）。
 
 ---
 
@@ -245,8 +242,8 @@ HTTP 端点（挂在 Node-RED 的 httpNode 上）：
 | `POST /dingtalk/ids/clear` | 清空 |
 
 数据存 `userDir/dingtalk-ids.json`（写入有 800ms 防抖，1 秒内连收多条消息只写一次盘），
-最多保留 2000 条，超出按最近使用时间淘汰。文件名里的 `userDir` 在 Docker 部署下就是
-`/volume1/docker/node-red/data`。
+最多保留 2000 条，超出按最近使用时间淘汰。`userDir` 就是 Node-RED 的用户目录
+（通常是 `~/.node-red`，Docker 官方镜像里是 `/data`）。
 
 ---
 
@@ -369,3 +366,9 @@ WebSocket ping/pong，与官方 SDK 一致。
 ### 6. robotCode 填错的表现
 
 `invalidParameter.robotCode.notExsit`。注意这个报错发生在**发消息/发卡片**时，Stream 连接阶段完全正常，很容易误判成权限问题。机器人应用的 robotCode 通常**等于 AppKey**。
+
+---
+
+## 版本与许可
+
+变更记录见 [CHANGELOG.md](CHANGELOG.md)。本项目使用 MIT 许可，见 [LICENSE](LICENSE)。

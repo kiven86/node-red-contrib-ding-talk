@@ -1,7 +1,7 @@
 'use strict';
 
 /** 卡片原地更新探针：PUT /v1.0/card/instances 改 probe 卡片的文案。
- *  用法：node test/update-probe.js /tmp/dt-cred.json <outTrackId>
+ *  用法：node test/probes/update-probe.js 凭证文件 <outTrackId>
  */
 
 const fs = require('node:fs');
@@ -9,7 +9,7 @@ const fs = require('node:fs');
 const cred = JSON.parse(fs.readFileSync(process.argv[2], 'utf8'));
 const outTrackId = process.argv[3];
 if (!outTrackId) {
-  console.error('用法: node test/update-probe.js <凭证json> <outTrackId>');
+  console.error('用法: node test/probes/update-probe.js <凭证json> <outTrackId>');
   process.exit(2);
 }
 

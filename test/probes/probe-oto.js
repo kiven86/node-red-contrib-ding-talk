@@ -4,7 +4,7 @@
  * robotCode 有效性验证：用「机器人单聊发消息」接口试两个候选值。
  * 只有真实存在且已上线的 robotCode 才会成功。
  *
- * 用法：node test/probe-oto.js /tmp/dt-cred.json <staffId>
+ * 用法：node test/probes/probe-oto.js 凭证文件 <staffId>
  */
 
 const fs = require('node:fs');
@@ -12,7 +12,7 @@ const fs = require('node:fs');
 const cred = JSON.parse(fs.readFileSync(process.argv[2], 'utf8'));
 const staffId = process.argv[3];
 if (!staffId) {
-  console.error('用法: node test/probe-oto.js <凭证json> <staffId>');
+  console.error('用法: node test/probes/probe-oto.js <凭证json> <staffId>');
   process.exit(2);
 }
 

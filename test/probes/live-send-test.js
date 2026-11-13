@@ -3,7 +3,7 @@
 /**
  * 真实发送测试（会真的发钉钉消息）。
  *
- *   node test/live-send-test.js <cred.json> <userid> [groupId]
+ *   node test/probes/live-send-test.js <cred.json> <userid> [groupId]
  *
  * 只给 userid 时全部发单聊，不打扰群；
  * 再给一个群 ID（cid 开头）时，额外验证群发文本与群发图片。
@@ -19,7 +19,7 @@ const openapi = require(path.join(__dirname, '..', 'lib/openapi'));
   const credPath = process.argv[2];
   const userId = process.argv[3];
   if (!credPath || !userId) {
-    console.error('用法: node test/live-send-test.js <cred.json> <userid>');
+    console.error('用法: node test/probes/live-send-test.js <cred.json> <userid>');
     process.exit(1);
   }
 
