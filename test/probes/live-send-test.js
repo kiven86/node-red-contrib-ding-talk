@@ -13,7 +13,7 @@
 
 const fs = require('node:fs');
 const path = require('node:path');
-const openapi = require(path.join(__dirname, '..', 'lib/openapi'));
+const openapi = require(path.join(__dirname, '..', '..', 'lib/openapi'));
 
 (async () => {
   const credPath = process.argv[2];
@@ -64,7 +64,7 @@ const openapi = require(path.join(__dirname, '..', 'lib/openapi'));
   );
 
   console.log('\n[3] 图片消息（本地文件 → 上传 → 发送）');
-  const imgPath = path.join(__dirname, 'demo.png');
+  const imgPath = path.join(__dirname, '..', 'demo.png');
   const buf = fs.readFileSync(imgPath);
   let mediaId = '';
   await step(`上传 ${path.basename(imgPath)} (${(buf.length / 1024).toFixed(1)}KB)`, async () => {
