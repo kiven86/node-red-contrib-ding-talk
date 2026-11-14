@@ -1,5 +1,12 @@
 # 更新日志
 
+## 2.1.2 — 2026-11-14
+
+修复
+
+- 配置节点打开「输出 Stream 调试日志」后，连接断开时抛 `TypeError: node.debug is not a function` 并导致 Node-RED 进程退出。原因是节点属性 `debug` 覆盖了 Node-RED 内置的 `node.debug()` 日志方法，现改为运行期另存 `streamDebug`
+- 事件监听器内部抛出的异常不再冒到进程层，统一转成日志，避免单个回调出错带崩整个 Node-RED
+
 ## 2.1.1 — 2026-11-14
 
 新增

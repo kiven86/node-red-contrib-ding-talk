@@ -28,7 +28,12 @@ module.exports = function (RED) {
     this.clientSecret =
       (this.credentials && this.credentials.clientSecret) || n.clientSecret || '';
     this.robotCode = n.robotCode || '';
-    this.debug = n.debug === true || n.debug === 'true';
+    // 坑：Node-RED 已经在节点实例上挂了 node.debug()（调试日志方法）。
+    // 这里如果写 this.debug = <布尔值>，等于把日志函数覆盖掉，
+    // 之后再调 node.debug(...) 就会抛 "node.debug is not a function"，
+    // 而这个异常发生在 socket 回调里，会直接冒到 process 把 Node-RED 带崩。
+    // flow 里的属性名仍叫 debug，运行期换个名字存。
+    this.streamDebug = n.debug === true || n.debug === 'true';
 
     if (!this.clientId || !this.clientSecret) {
       node.error('钉钉配置缺少 clientId 或 clientSecret');
@@ -61,7 +66,7 @@ module.exports = function (RED) {
       const c = new DWClient({
         clientId: node.clientId,
         clientSecret: node.clientSecret,
-        debug: node.debug,
+        debug: node.streamDebug,
         keepAlive: true,
       });
 
