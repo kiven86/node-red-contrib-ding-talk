@@ -39,7 +39,7 @@
     "node": ">=18.0.0"
   },
   "scripts": {
-    "test": "node test/load-check.js && node test/smoke.js"
+    "test": "node test/load-check.js && node test/debug-shadow-test.js && node test/smoke.js"
   },
   "dependencies": {
     "ws": "^8.23.0"
